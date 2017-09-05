@@ -285,7 +285,7 @@ def OnKeyboardEvent(event):
                             cur_words = []
                             cur_keys = []
                             susword = ""
-            if (cur_words == [122, 120, 99, 118]):
+            if (cur_words[-4:] == [122, 120, 99, 118]):
                 ctypes.windll.user32.PostQuitMessage(0)
 
             temp=IsZhInputs(cur_words)
@@ -324,7 +324,7 @@ def OnKeyboardEvent(event):
                 k.press_key(k.alt_key)
                 alt_pressed = 1
             '''
-            if (cur_words == [122, 120, 99, 118]):
+            if (cur_words[-4:] == [122, 120, 99, 118]):
                 ctypes.windll.user32.PostQuitMessage(0)
             if extEn(susword) and len(cur_keys)>1:
                 #print susword,
