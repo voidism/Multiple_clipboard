@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 import pythoncom
 import pyHook
+import pyautogui
 from pymouse import *
 from pykeyboard import *
 import ctypes
@@ -10,6 +11,7 @@ import sys
 import pyperclip
 import time
 import threading
+import re
 
 def copyclip():
     global clipindex
@@ -30,13 +32,18 @@ def MouseEventThread():
 
 
 def onMouseEvent(event):
-    global v_open
-    if v_open==0:
-        return True
+    #global v_open
+    #if v_open==0:
+    #    return True
     if event.MessageName in ["mouse left down", "mouse right down"]:
         t = threading.Thread(target=MouseEventThread)
         t.start()
     return True
+
+def rncount(string):
+    rn=re.compile(r'\r\n')
+    mo = rn.findall(string)
+    return len(mo)
 
 def OnKeyboardEvent(event):
     global ProgramPress, cycle, ctrl_pressed, clipboard, clipindex, v_open
@@ -58,9 +65,8 @@ def OnKeyboardEvent(event):
             if (event.KeyID == 38):
                 if not 0 < clipindex <= (len(clipboard)-1):
                     return False
-                ProgramPress = (len(clipboard[clipindex])+2)
-                for i in range(len(clipboard[clipindex])):
-                    k.tap_key('\b')
+                ProgramPress = (len(clipboard[clipindex])+2-rncount(clipboard[clipindex]))
+                pyautogui.typewrite('\b'*(len(clipboard[clipindex])-rncount(clipboard[clipindex])))
                 clipindex-=1
                 pyperclip.copy(clipboard[clipindex])
                 k.press_key(k.control_key)
@@ -71,9 +77,10 @@ def OnKeyboardEvent(event):
             elif (event.KeyID == 40):
                 if not 0 <= clipindex < (len(clipboard)-1):
                     return False
-                ProgramPress = (len(clipboard[clipindex])+2)
-                for i in range(len(clipboard[clipindex])):
-                    k.tap_key('\b')
+                ProgramPress = (len(clipboard[clipindex])+2-rncount(clipboard[clipindex]))
+                #for i in range(len(clipboard[clipindex])-rncount(clipboard[clipindex])):
+                #    k.tap_key('\b')
+                pyautogui.typewrite('\b'*(len(clipboard[clipindex])-rncount(clipboard[clipindex])))
                 clipindex+=1
                 pyperclip.copy(clipboard[clipindex])
                 k.press_key(k.control_key)
@@ -96,6 +103,7 @@ def OnKeyboardEvent(event):
             if event.KeyID == 86:
                 v_open = 1
                 return True
+            return True
         else:
             cycle.append(event.Ascii)
             if len(cycle) > 4:
